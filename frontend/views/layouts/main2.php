@@ -143,14 +143,14 @@ ShopAssets::register($this);
                 </div>
                 <div class="col-lg-1">
                     <div class="header__cart">
-                        <?php if (isset($_COOKIE['example'])) {
+                        <?php if (isset($_COOKIE['cart'])) {
                             ?>
                             <ul>
-                                <?php $cookie = json_decode($_COOKIE['example']) ?>
+                                <?php $cookie = json_decode($_COOKIE['cart']) ?>
 
                                 <li><a href="<?= url::to(['shop/shopping-cart']) ?>"><i class="fa fa-shopping-cart"></i>
                                         <span>
-                                        <?php if ($_COOKIE['example']) {
+                                        <?php if ($_COOKIE['cart']) {
                                             echo count($cookie);
                                         } elseif ($cookie == []) {
                                             echo 0;
@@ -243,6 +243,12 @@ ShopAssets::register($this);
             </div>
         </div>
     </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"
+            integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
 
     <?php $this->endBody() ?>
     </body>

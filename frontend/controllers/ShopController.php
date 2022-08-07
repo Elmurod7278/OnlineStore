@@ -93,5 +93,39 @@ class ShopController extends Controller
         return $this->render('category-views', ['model' => $model]);
     }
 
+    public function actionGetProduct($id)
+    {
+        $lang = Yii::$app->language;
+        $model = Products::findOne($id);
+        $response = [
+//            'name' => $model->title_uz,
+//            'price' => $model->price,
+//            'count' => $model->quantity,
+            'id' => $model->id,
+//            'image' =>
+        ];
+        return Json::encode($response);
+    }
+
+    public function actionDeleteCart($id)
+    {
+        $cookie = json_decode($_COOKIE['cart']);
+        $newarr = [];
+
+        foreach ($cookie as $item) {
+            if ($item->id == $id)
+                continue;
+
+            $newarr[] = $item;
+        }
+
+        unset($_COOKIE['cart']);
+        setcookie('cart', null, -1);
+
+        $_COOKIE['cart'] = Json::encode($newarr);
+
+        return $this->redirect(['shop/shopping-cart']);
+    }
+
 
 }

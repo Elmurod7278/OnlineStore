@@ -1,1 +1,1 @@
-<h1>rahmat xarid uchun</h1>
+<h1>Haridingiz uchun rahmat</h1>

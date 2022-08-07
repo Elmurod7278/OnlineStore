@@ -10,6 +10,7 @@
                             <th>Price</th>
                             <th>Quantity</th>
                             <th>Total</th>
+                            <th>taxrirlash</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -17,17 +18,20 @@
 
                         <?php
 
+                        use common\models\Products;
+                        use yii\helpers\ArrayHelper;
+                        use yii\helpers\Json;
                         use yii\helpers\Url;
 
-                        if ($_COOKIE['example']) {
-                            $cookie = json_decode($_COOKIE['example']);
-//\yii\helpers\VarDumper::dump($cookie,12,true);die();
-                            $products = \common\models\Products::find()->where(['in', 'id', $cookie])->all();
+                        if ($_COOKIE['cart']) {
+                            $cookie = json_decode($_COOKIE['cart']);
+                            $products = Products::find()->where(['in', 'id', ArrayHelper::map($cookie, 'id', 'id')])->all();
                             foreach ($products as $product) {
                                 ?>
                                 <tr>
                                     <td class="shoping__cart__item">
-                                        <img src="img/cart/cart-1.jpg" alt="">
+                                        <img src="<?= "/uploads/storage/data/{$product->image} " ?>"
+                                             style="width: 100px">
                                         <h5><?= $product->title_uz ?></h5>
                                     </td>
                                     <td class="shoping__cart__price">
@@ -35,39 +39,31 @@
                                     </td>
                                     <td class="shoping__cart__quantity">
                                         <div class="quantity">
-
-                                            <div class="pro-qty">
-                                                <input type="button" id="quantity" value="1">
-                                            </div>
-
+                                            <?php
+                                            $count = 0;
+                                            foreach ($cookie as $item) {
+                                                if ($item->id == $product->id)
+                                                    $count += $item->quantity;
+                                            }
+                                            ?>
+                                            <?= $count ?>
                                         </div>
                                     </td>
 
                                     <td class="shoping__cart__total">
-                                        <?= $product->price ?>
+                                        <?= number_format($product->price * $count) ?>
                                     </td>
 
                                     <td class="shoping__cart__item__close">
-                                        <!--                                                                                <button onclick="-->
-                                        <!--                                        -->
-                                        <?php //setcookie("example", "", time() - 300, "/"); ?><!--">bos-->
-                                        <!--                                                                                </button>-->
+                                        <button class="btn btn-primary" onclick="deleteFromCart(<?= $product->id ?>)">
+                                            delete
+                                        </button>
                                     </td>
                                 </tr>
 
                                 <?php
 
                             }
-                        } else {
-                            ?>
-                            }
-                            <tr>
-                                <td class="shoping__cart__item">
-                                    <img src="img/cart/cart-1.jpg" alt="">
-                                    <h5>Korzinka bosh</h5>
-                                </td>
-                            </tr>
-                            <?php
                         }
                         ?>
 
@@ -90,14 +86,16 @@
                 <div class="shoping__checkout">
                     <h5>Cart Total</h5>
                     <ul>
-                        <li>Total <span><?php
+                        <li>Total <span>
+                                <?php
                                 $sum = 0;
                                 foreach ($products as $product) {
                                     $sum += intval($product->price);
                                 }
-                                echo number_format($sum, 2);
+                                echo number_format($sum, 0, ' ', ' ') . ' so\'m';
                                 ?>
-                            </span></li>
+                            </span>
+                        </li>
                     </ul>
                     <a href="<?= url::to(['shop/checkout']) ?>" class="primary-btn">PROCEED TO CHECKOUT</a>
                 </div>
@@ -108,8 +106,23 @@
 
 
 <script>
-    let input = document.getElementById('quantity').value;
-    console.log(input)
+    function deleteFromCart(id) {
+        var cartArray = new Array();
+        var oldData = Cookies.get('cart');
+        if (oldData) {
+            JSON.parse(oldData).forEach(function (item) {
+                if (item.id !== id) {
+                    cartArray.push(item)
+                }
+            })
+
+            var cartJSON = JSON.stringify(cartArray);
+            Cookies.remove('cart');
+            Cookies.set('cart', cartJSON);
+
+            window.location.href = '/shop/shopping-cart'
+        }
+    }
 </script>
 <?php
 

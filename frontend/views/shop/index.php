@@ -1,4 +1,5 @@
-<?php use common\models\Products; ?>
+<?php use common\models\Products;
+use yii\helpers\Json; ?>
     <!-- Categories Section Begin -->
     <section class="categories">
 
@@ -9,11 +10,10 @@
             <div class="row featured__filter">
                 <?php
 
-                $products = Products::find()->all()->orderBy(['rand()']);
+                $products = Products::find()->orderBy('created_at  DESC')->all();
                 foreach ($products
 
                          as $product) {
-
                     ?>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 mix pt-4"
@@ -24,8 +24,11 @@
                                 <ul class="featured__item__pic__hover">
                                     <li><?php \yii\helpers\Html::a('savat', ['']) ?></li>
                                     <li>
-                                        <a href="#" onclick="addCart(<?= $product->id ?>)">
-                                            <i class="fa fa-shopping-cart"></i>
+                                        <input type="text" class="product-quantity" name="quantity" value="1" size="2"
+                                               id="quantity<?= $product->id ?>"/>
+                                        <input type="submit" value="Add to Cart" class="add-to-cart"
+                                               onClick="addToCart(<?= $product->id ?>)"/>
+
                                         </a>
                                     </li>
                                 </ul>
@@ -49,37 +52,65 @@
     <!-- Featured Section End -->
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"
-            integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
     <script>
+
+        // function addCart(id) {
+        //     let first = [];
         //
-        //    function addCart(id) {
-        //        let first = []
-        //        if (Cookies.get('example')){
-        //            first = Cookies.get('example')
-        //            first.push(id)
-        //        }else{
-        //            first.push(id)
+        //     if (Cookies.get('example')) {
+        //         first = JSON.parse(Cookies.get('example'))
+        //         first.push(id)
+        //     } else {
+        //         first.push(id)
+        //     }
+        //     Cookies.set('example', JSON.stringify(first), {expires: 7})
+        // }
+
+
+        //$(document).ready(function () {
+        //    var productItem = [
+        //        <?php //$products = Products::find()->all();
+        //        foreach ($products as $product){
+        //
+        //        ?>
+        //        {
+        //            productName:'<?//= $product->name_uz ?>//',
+        //            price:'<?//= $product->price ?>//',
+        //            photo:'<?//= $product->name_uz ?>//',
+        //        },
+        //        <?php
         //        }
-        //        Cookies.set('example', first, { expires: 7})
-        //    }
+        //        ?>
+        //        ]
+        //})
+    </script>
 
 
-        function addCart(id) {
-            let first = [];
+    <script>
+        function addToCart(id) {
+            var quantity = $('#quantity' + id).val()
+            $.ajax('/shop/get-product', {
+                type: 'GET',  // http method
+                data: {id: id},  // data to submit
+                success: function (data, status, xhr) {
+                    var cartArray = new Array();
+                    // If javascript shopping cart session is not empty
+                    if (Cookies.get('cart')) {
+                        cartArray = JSON.parse(Cookies.get('cart'));
+                    }
+                    data = JSON.parse(data);
+                    data['quantity'] = quantity
+                    cartArray.push(data);
 
-            if (Cookies.get('example')) {
-                first = JSON.parse(Cookies.get('example'))
-                first.push(id)
-            } else {
-                first.push(id)
-            }
-            Cookies.set('example', JSON.stringify(first), {expires: 7})
+                    var cartJSON = JSON.stringify(cartArray);
+                    Cookies.remove('cart')
+                    Cookies.set('cart', cartJSON);
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    console.log(errorMessage)
+                }
+            });
         }
-
     </script>
 
 
